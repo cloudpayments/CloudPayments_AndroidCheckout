@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name" translatable="false">CloudPayments Checkout Example</string>
+
+    <string name="store_name">My Online Store</string>
+    <string name="pwg_status_unavailable">Unfortunately, Pay with Google is not available on this phone.</string>
+    <string name="pwg_status_checking">Checking if Pay with Google is available...</string>
+    <string name="payments_show_name">Successfully received payment data for %s!</string>
+
+    <string name="pay_with_google_content_description">Оплатить через Google</string>
+
+    <!-- Dialog -->
+    <string name="dialog_loading_title">Загрузка данных</string>
+    <string name="dialog_loading_content">Пожалуйста, подождите…</string>
+    <string name="dialog_not_authorized">Для этого действия необходима авторизация</string>
+    <string name="dialog_server_is_not_available">Сервер недоступен</string>
+
+    <!-- Common -->
+    <string name="common_no_internet_connection">Отсутствует соединение с интернетом</string>
+
+    <!-- Main menu -->
+    <string name="menu_menu">Меню</string>
+    <string name="menu_one_stage_payment">Одностадийная оплата</string>
+    <string name="menu_two_stage_payment">Двухстадийная оплата</string>
+
+    <!-- Checkout -->
+    <string name="checkout_1_rub">ВНИМАНИЕ!\nВ режиме PRODUCTION с вашей банковской карты будет списан 1 рубль!</string>
+    <string name="checkout_caption">Вы можете провести оплату введя данные банковской карты или используя Google Pay если этот сервис доступен на Вашем устройстве</string>
+    <string name="checkout_card_data">Введите данные карты</string>
+    <string name="checkout_card_number">Номер</string>
+    <string name="checkout_card_exp">Срок действия в формате: MMYY</string>
+    <string name="checkout_card_holder_name">Имя владельца</string>
+    <string name="checkout_card_cvv">CVV код</string>
+    <string name="checkout_pay">Оплатить</string>
+    <string name="checkout_or">или</string>
+    <string name="checkout_error_crypto">Невозможно создать криптограмму проверьте данные карты</string>
+</resources>
