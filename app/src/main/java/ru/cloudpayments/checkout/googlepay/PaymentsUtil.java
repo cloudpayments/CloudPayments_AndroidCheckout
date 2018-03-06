@@ -82,15 +82,7 @@ public class PaymentsUtil {
                 PaymentDataRequest.newBuilder()
                         .setPhoneNumberRequired(false)
                         .setEmailRequired(true)
-                        .setShippingAddressRequired(true)
-
-                        // Omitting ShippingAddressRequirements all together means all countries are
-                        // supported.
-                        .setShippingAddressRequirements(
-                                ShippingAddressRequirements.newBuilder()
-                                        .addAllowedCountryCodes(ConstantsGPay.SHIPPING_SUPPORTED_COUNTRIES)
-                                        .build())
-
+                        .setShippingAddressRequired(false)
                         .setTransactionInfo(transactionInfo)
                         .addAllowedPaymentMethods(ConstantsGPay.SUPPORTED_METHODS)
                         .setCardRequirements(
@@ -98,10 +90,6 @@ public class PaymentsUtil {
                                         .addAllowedCardNetworks(ConstantsGPay.SUPPORTED_NETWORKS)
                                         .setAllowPrepaidCards(true)
                                         .setBillingAddressRequired(true)
-
-                                        // Omitting this parameter will result in the API returning
-                                        // only a "minimal" billing address (post code only).
-                                        .setBillingAddressFormat(WalletConstants.BILLING_ADDRESS_FORMAT_FULL)
                                         .build())
                         .setPaymentMethodTokenizationParameters(params)
 

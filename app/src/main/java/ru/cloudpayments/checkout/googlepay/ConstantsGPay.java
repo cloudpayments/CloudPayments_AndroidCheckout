@@ -29,13 +29,11 @@ public class ConstantsGPay {
     // Changing this to ENVIRONMENT_PRODUCTION will make the API return real card information.
     // Please refer to the documentation to read about the required steps needed to enable
     // ENVIRONMENT_PRODUCTION.
-    public static final int PAYMENTS_ENVIRONMENT = WalletConstants.ENVIRONMENT_TEST;
+    public static final int PAYMENTS_ENVIRONMENT = WalletConstants.ENVIRONMENT_PRODUCTION;
 
     // The allowed networks to be requested from the API. If the user has cards from networks not
     // specified here in their account, these will not be offered for them to choose in the popup.
     public static final List<Integer> SUPPORTED_NETWORKS = Arrays.asList(
-            WalletConstants.CARD_NETWORK_AMEX,
-            WalletConstants.CARD_NETWORK_DISCOVER,
             WalletConstants.CARD_NETWORK_VISA,
             WalletConstants.CARD_NETWORK_MASTERCARD
     );
@@ -53,14 +51,6 @@ public class ConstantsGPay {
 
     // Required by the API, but not visible to the user.
     public static final String CURRENCY_CODE = "RUB";
-
-    // Supported countries for shipping (use ISO 3166-1 alpha-2 country codes).
-    // Relevant only when requesting a shipping address.
-    public static final List<String> SHIPPING_SUPPORTED_COUNTRIES = Arrays.asList(
-            "US",
-            "GB",
-            "RU"
-    );
 
     // The name of your payment processor / gateway. Please refer to their documentation for
     // more information.
