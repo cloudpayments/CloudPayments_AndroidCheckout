@@ -38,6 +38,8 @@ String card.cardCryptogram(String publicId);
 ```
 ## Подключение Google Pay API для клиентов CloudPayments
 
+https://cloudpayments.ru/docs/googlepay - о Google Pay
+
 [https://developers.google.com/payments/setup](https://developers.google.com/payments/setup) \- документация Google, по подключению Google Pay API в приложение.
 
 [https://github.com/android-pay/paymentsapi-quickstart](https://github.com/android-pay/paymentsapi-quickstart) -  пример использования Google Pay API от Google.
