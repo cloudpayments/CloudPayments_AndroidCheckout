@@ -3,6 +3,8 @@ package ru.cloudpayments.checkout.screens;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -40,6 +42,7 @@ import ru.cloudpayments.checkout.api.Api;
 import ru.cloudpayments.checkout.base.BaseActivity;
 import ru.cloudpayments.checkout.sdk.card.Card;
 import ru.cloudpayments.checkout.sdk.card.CardFactory;
+import ru.cloudpayments.checkout.sdk.card.CardType;
 import ru.cloudpayments.checkout.sdk.d3s.D3SDialog;
 import ru.cloudpayments.checkout.sdk.d3s.D3SDialogListener;
 import ru.cloudpayments.checkout.support.Constants;
@@ -106,7 +109,11 @@ public class CheckoutActivity extends BaseActivity {
 
         // It's recommended to create the PaymentsClient object inside of the onCreate method.
         mPaymentsClient = PaymentsUtil.createPaymentsClient(this);
+
         checkIsReadyToPay();
+
+        // Определение типа платежной системы
+        activateCardTypeDetermination();
     }
 
     private void initTitle() {
@@ -376,5 +383,28 @@ public class CheckoutActivity extends BaseActivity {
                 .subscribe(transaction -> {
                     checkResponse(transaction);
                 }, this::handleError));
+    }
+
+
+    // Пример определения типа платежной системы по номеру карты
+    private void activateCardTypeDetermination() {
+        editTextCardNumber.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                String cardType = CardType.toString(CardType.getType(s.toString())); // Определяем тип во время ввода номера карты
+                log(cardType); // и выводим данные в лог
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 }

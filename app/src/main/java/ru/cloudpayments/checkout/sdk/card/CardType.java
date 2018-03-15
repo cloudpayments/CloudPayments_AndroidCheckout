@@ -2,34 +2,22 @@ package ru.cloudpayments.checkout.sdk.card;
 
 public class CardType {
 
-    public final static int visa = 0;
-    public final static int mc = 1;
-    public final static int maestro = 2;
-    public final static int amex = 3;
-    public final static int unknown = -1;
-    private final static int AmericanExpress = 4;
-    private final static int DinersClub = 5;
-    private final static int CarteBlanche = 6;
-    private final static int JCB = 7;
+    public final static int UNKNOWN = -1;
+    public final static int VISA = 0;
+    public final static int MASTER_CARD = 1;
+    public final static int MAESTRO = 2;
+    public final static int MIR = 3;
 
     public static String toString(int value) {
         switch (value) {
-            case visa:
+            case VISA:
                 return "Visa";
-            case mc:
+            case MASTER_CARD:
                 return "MasterCard";
-            case maestro:
+            case MAESTRO:
                 return "Maestro";
-            case amex:
-                return "Amex";
-            case AmericanExpress:
-                return "AmericanExpress";
-            case DinersClub:
-                return "DinersClub";
-            case CarteBlanche:
-                return "CarteBlanche";
-            case JCB:
-                return "JCB";
+            case MIR:
+                return "MIR";
             default:
                 return "Unknown";
         }
@@ -37,60 +25,53 @@ public class CardType {
 
     public static int fromString(String value) {
         if ("visa".equals(value.toLowerCase())) {
-            return visa;
+            return VISA;
         } else if ("mastercard".equals(value.toLowerCase())) {
-            return mc;
+            return MASTER_CARD;
         } else if ("maestro".equals(value.toLowerCase())) {
-            return maestro;
-        } else if ("amex".equals(value.toLowerCase())) {
-            return amex;
-        } else if ("americanexpress".equals(value.toLowerCase())) {
-            return AmericanExpress;
-        } else if ("dinersclub".equals(value.toLowerCase())) {
-            return DinersClub;
-        } else if ("carteblanche".equals(value.toLowerCase())) {
-            return CarteBlanche;
-        } else if ("jcb".equals(value.toLowerCase())) {
-            return JCB;
+            return MAESTRO;
+        } else if ("mir".equals(value.toLowerCase())) {
+            return MIR;
         } else {
-            return unknown;
+            return UNKNOWN;
         }
     }
 
-    public static int getType(String creditCardNumberPart)  {
-        if (creditCardNumberPart==null || creditCardNumberPart.length() < 2 || creditCardNumberPart.equals("null")) return unknown;
+    public static int getType(String creditCardNumberPart) {
 
-        int prefix1 = Integer.valueOf(creditCardNumberPart.substring(0, 2));
-        //American Express
-        if (prefix1 == 34 || prefix1 == 37)
-            return AmericanExpress;
+        if (creditCardNumberPart == null || creditCardNumberPart.isEmpty())
+            return UNKNOWN;
 
-        //Diners Club
-        if (prefix1 == 36)
-            return DinersClub;
+        int first = Integer.valueOf(creditCardNumberPart.substring(0, 1));
 
-        //Carte Blanche
-        if (prefix1 == 38)
-            return CarteBlanche;
+        if (first == 4)
+            return VISA;
 
-        //MasterCard
-        if (prefix1 >= 51 && prefix1 <= 55)
-            return mc;
+        if (first == 6)
+            return MAESTRO;
 
-        //Maestro
-        if (prefix1 == 50 || (prefix1 >= 56 && prefix1 <= 58) || (prefix1 >= 60 && prefix1 <= 69))
-            return maestro;
+        if (creditCardNumberPart.length() < 2)
+            return UNKNOWN;
 
-        int prefix4 = Integer.valueOf(creditCardNumberPart.substring(0, 1));
+        int firstTwo = Integer.valueOf(creditCardNumberPart.substring(0, 2));
 
-        //JCB
-        if (prefix4 == 3)
-            return JCB;
+        if (firstTwo == 50 || (firstTwo >= 56 && firstTwo <= 58))
+            return MAESTRO;
 
-        //Visa
-        if (prefix4 == 4)
-            return visa;
+        if (firstTwo >= 51 && firstTwo <= 55)
+            return MASTER_CARD;
 
-        return unknown;
+        if (creditCardNumberPart.length() < 4)
+            return UNKNOWN;
+
+        int firstFour = Integer.valueOf(creditCardNumberPart.substring(0, 4));
+
+        if (firstFour >= 2200 && firstFour <= 2204)
+            return MIR;
+
+        if (firstFour >= 2221 && firstFour <= 2720)
+            return MASTER_CARD;
+
+        return UNKNOWN;
     }
 }
