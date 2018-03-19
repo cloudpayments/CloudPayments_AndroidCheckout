@@ -7,6 +7,7 @@ public class CardType {
     public final static int MASTER_CARD = 1;
     public final static int MAESTRO = 2;
     public final static int MIR = 3;
+    public final static int JCB = 4;
 
     public static String toString(int value) {
         switch (value) {
@@ -18,6 +19,8 @@ public class CardType {
                 return "Maestro";
             case MIR:
                 return "MIR";
+            case JCB:
+                return "JCB";
             default:
                 return "Unknown";
         }
@@ -32,6 +35,8 @@ public class CardType {
             return MAESTRO;
         } else if ("mir".equals(value.toLowerCase())) {
             return MIR;
+        } else if ("jcb".equals(value.toLowerCase())) {
+            return JCB;
         } else {
             return UNKNOWN;
         }
@@ -54,6 +59,9 @@ public class CardType {
             return UNKNOWN;
 
         int firstTwo = Integer.valueOf(creditCardNumberPart.substring(0, 2));
+
+        if (firstTwo == 35)
+            return JCB;
 
         if (firstTwo == 50 || (firstTwo >= 56 && firstTwo <= 58))
             return MAESTRO;
