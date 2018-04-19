@@ -19,11 +19,16 @@ public class Api {
                 .builder()
                 .build();
 
-        args.put("Amount", 1);
-        args.put("Currency", "RUB");
-        args.put("Name", cardHolderName);
-        args.put("IpAddress", "192.168.0.1");
-        args.put("CardCryptogramPacket", cardCryptogramPacket);
+        // Параметры:
+        args.put("Amount", 1); // Сумма платежа (Обязательный)
+        args.put("Currency", "RUB"); // Валюта (Обязательный)
+        args.put("Name", cardHolderName); // Имя держателя карты в латинице (Обязательный для всех платежей кроме Apple Pay и Google Pay)
+        args.put("IpAddress", "192.168.0.1"); // Необходимый параметр, оставляем его как есть
+        args.put("CardCryptogramPacket", cardCryptogramPacket); // Криптограмма платежных данных (Обязательный)
+        args.put("InvoiceId", "1111"); // Номер счета или заказа в вашей системе (необязательный)
+        args.put("Description", "Оплата книг"); // Описание оплаты в свободной форме (необязательный)
+        args.put("AccountId", "222"); // Идентификатор пользователя в вашей системе (необязательный)
+        args.put("JsonData", "{\"age\":27,\"name\":\"Ivan\",\"phone\":\"+79998881122\"}"); // Любые другие данные, которые будут связаны с транзакцией (необязательный)
 
         return ApiFactory.getCPApi()
                 .charge(CONTENT_TYPE, getAuthToken(), args)
@@ -37,11 +42,16 @@ public class Api {
                 .builder()
                 .build();
 
-        args.put("Amount", 1);
-        args.put("Currency", "RUB");
-        args.put("Name", cardHolderName);
-        args.put("IpAddress", "192.168.0.1");
-        args.put("CardCryptogramPacket", cardCryptogramPacket);
+        // Параметры:
+        args.put("Amount", 1); // Сумма платежа (Обязательный)
+        args.put("Currency", "RUB"); // Валюта (Обязательный)
+        args.put("Name", cardHolderName); // Имя держателя карты в латинице (Обязательный для всех платежей кроме Apple Pay и Google Pay)
+        args.put("IpAddress", "192.168.0.1"); // Необходимый параметр, оставляем его как есть
+        args.put("CardCryptogramPacket", cardCryptogramPacket); // Криптограмма платежных данных (Обязательный)
+        args.put("InvoiceId", "1111"); // Номер счета или заказа в вашей системе (необязательный)
+        args.put("Description", "Оплата книг"); // Описание оплаты в свободной форме (необязательный)
+        args.put("AccountId", "222"); // Идентификатор пользователя в вашей системе (необязательный)
+        args.put("JsonData", "{\"age\":27,\"name\":\"Ivan\",\"phone\":\"+79998881122\"}"); // Любые другие данные, которые будут связаны с транзакцией (необязательный)
 
         return ApiFactory.getCPApi()
                 .auth(CONTENT_TYPE, getAuthToken(), args)
