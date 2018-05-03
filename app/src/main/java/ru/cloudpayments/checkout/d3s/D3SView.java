@@ -1,4 +1,4 @@
-package ru.cloudpayments.checkout.sdk.d3s;
+package ru.cloudpayments.checkout.d3s;
 
 import android.annotation.TargetApi;
 import android.content.Context;

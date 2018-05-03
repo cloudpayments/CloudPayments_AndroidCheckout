@@ -40,12 +40,12 @@ import ru.cloudpayments.checkout.googlepay.PaymentsUtil;
 import ru.cloudpayments.checkout.R;
 import ru.cloudpayments.checkout.api.Api;
 import ru.cloudpayments.checkout.base.BaseActivity;
-import ru.cloudpayments.checkout.sdk.card.Card;
-import ru.cloudpayments.checkout.sdk.card.CardFactory;
-import ru.cloudpayments.checkout.sdk.card.CardType;
-import ru.cloudpayments.checkout.sdk.d3s.D3SDialog;
-import ru.cloudpayments.checkout.sdk.d3s.D3SDialogListener;
+import ru.cloudpayments.checkout.d3s.D3SDialog;
+import ru.cloudpayments.checkout.d3s.D3SDialogListener;
 import ru.cloudpayments.checkout.support.Constants;
+import ru.cloudpayments.cpcard.CPCard;
+import ru.cloudpayments.cpcard.CPCardFactory;
+import ru.cloudpayments.cpcard.CPCardType;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -253,7 +253,7 @@ public class CheckoutActivity extends BaseActivity {
         String cardCVV = editTextCardCVV.getText().toString();
 
         // Создаем объект Card
-        Card card = CardFactory.create(cardNumber, cardExp, cardCVV);
+        CPCard card = CPCardFactory.create(cardNumber, cardExp, cardCVV);
 
         // Создаем криптограмму карточных данных
         String cardCryptogram = null;
@@ -397,7 +397,7 @@ public class CheckoutActivity extends BaseActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-                String cardType = CardType.toString(CardType.getType(s.toString())); // Определяем тип во время ввода номера карты
+                String cardType = CPCardType.toString(CPCardType.getType(s.toString())); // Определяем тип во время ввода номера карты
                 log(cardType); // и выводим данные в лог
             }
 

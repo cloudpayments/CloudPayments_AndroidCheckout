@@ -41,6 +41,10 @@ dependencies {
 
     implementation 'com.android.support:multidex:1.0.1'
 
+    // CloudPayments SDK
+    //implementation (name:'CloudPayments', ext:'arr')
+    implementation files('src/main/libs/CloudPayments.aar')
+
     // views binding
     implementation 'com.jakewharton:butterknife:8.6.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
