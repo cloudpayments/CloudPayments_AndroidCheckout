@@ -32,7 +32,7 @@ String card.getType();
 
 ```
 
-CPCard card = CPCardFactory.create(String number);
+CPCard card = CPCardFactory.create(cardNumber, cardDate, cardCVC); // Номер карты только цифры без пробелов, срок действия карты в формате MMyy (например 0919).
 String card.cardCryptogram(String publicId);
 
 ```
