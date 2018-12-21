@@ -14,7 +14,7 @@ SDK CloudPayments позволяет:
 * Проводить проверку карточного номера на корректность
 
 ```
-Card card = CardFactory.create(String number);
+CPCard card = CPCardFactory.create(String number);
 boolean card.isValidNumber();
 
 ```
@@ -23,7 +23,7 @@ boolean card.isValidNumber();
 
 ```
 
-Card card = CardFactory.create(java.lang.String number);
+CPCard card = CPCardFactory.create(java.lang.String number);
 String card.getType();
 
 ```
@@ -32,7 +32,7 @@ String card.getType();
 
 ```
 
-Card card = CardFactory.create(String number);
+CPCard card = CPCardFactory.create(String number);
 String card.cardCryptogram(String publicId);
 
 ```
