@@ -45,6 +45,7 @@ public class D3SView extends WebView {
 
     private D3SViewAuthorizationListener authorizationListener = null;
 
+    String capturedHtml;
 
     public D3SView(final Context context) {
         super(context);
@@ -83,7 +84,8 @@ public class D3SView extends WebView {
                 if (!urlReturned && !postbackHandled) {
                     if (url.toLowerCase().contains(postbackUrl.toLowerCase())) {
                         postbackHandled = true;
-                        view.loadUrl(String.format("javascript:window.%s.processHTML(document.getElementsByTagName('html')[0].innerHTML);", JavaScriptNS));
+                        //view.loadUrl(String.format("javascript:window.%s.processHTML(document.getElementsByTagName('html')[0].innerHTML);", JavaScriptNS));
+                        completeAuthorization(capturedHtml);
                         urlReturned = true;
                     } else {
                         super.onPageStarted(view, url, icon);
@@ -96,7 +98,8 @@ public class D3SView extends WebView {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (!postbackHandled && url.toLowerCase().contains(postbackUrl.toLowerCase())) {
                     postbackHandled = true;
-                    view.loadUrl(String.format("javascript:window.%s.processHTML(document.getElementsByTagName('html')[0].innerHTML);", JavaScriptNS));
+                    //view.loadUrl(String.format("javascript:window.%s.processHTML(document.getElementsByTagName('html')[0].innerHTML);", JavaScriptNS));
+                    completeAuthorization(capturedHtml);
                     return true;
                 } else {
                     return super.shouldOverrideUrlLoading(view, url);
@@ -107,6 +110,16 @@ public class D3SView extends WebView {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 return shouldOverrideUrlLoading(view, request.getUrl().toString());
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+
+                if (url.toLowerCase().contains(postbackUrl.toLowerCase())) {
+                    return;
+                }
+                view.loadUrl(String.format("javascript:window.%s.captureHtml(document.getElementsByTagName('html')[0].innerHTML);", JavaScriptNS));
             }
 
             @SuppressWarnings("deprecation")
@@ -235,6 +248,11 @@ public class D3SView extends WebView {
         @android.webkit.JavascriptInterface
         public void processHTML(final String paramString) {
             completeAuthorization(paramString);
+        }
+
+        @android.webkit.JavascriptInterface
+        public void captureHtml(String html) {
+            capturedHtml = html;
         }
     }
 }
