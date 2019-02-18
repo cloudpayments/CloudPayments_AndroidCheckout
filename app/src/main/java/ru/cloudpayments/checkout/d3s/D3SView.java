@@ -1,29 +1,22 @@
 package ru.cloudpayments.checkout.d3s;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
-import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.webkit.JavascriptInterface;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
-import android.webkit.WebResourceError;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
+import com.afollestad.materialdialogs.MaterialDialog;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,13 +32,15 @@ public class D3SView extends WebView {
 
     private boolean urlReturned = false;
 
+    private boolean debugMode = false;
+
     private String postbackUrl = "cloudpayments.ru";
 
-    private boolean postbackHandled = false;
+    private String stackedModePostbackUrl;
+
+    private AtomicBoolean postbackHandled = new AtomicBoolean(false);
 
     private D3SViewAuthorizationListener authorizationListener = null;
-
-    String capturedHtml;
 
     public D3SView(final Context context) {
         super(context);
@@ -68,48 +63,57 @@ public class D3SView extends WebView {
     }
 
     private void initUI() {
-
         getSettings().setJavaScriptEnabled(true);
         getSettings().setBuiltInZoomControls(true);
-        getSettings().setSupportZoom(true);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW );
-        }
-
         addJavascriptInterface(new D3SJSInterface(), JavaScriptNS);
 
         setWebViewClient(new WebViewClient() {
 
+            public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
+
+                final boolean stackedMode = !TextUtils.isEmpty(stackedModePostbackUrl);
+
+                if (!postbackHandled.get() && (!stackedMode && url.toLowerCase().contains(postbackUrl.toLowerCase()) || (stackedMode
+                        && url.toLowerCase().contains(stackedModePostbackUrl.toLowerCase())))) {
+
+                    if (!TextUtils.isEmpty(stackedModePostbackUrl)) {
+
+                        if (postbackHandled.compareAndSet(false, true)) {
+                            authorizationListener.onAuthorizationCompletedInStackedMode(url);
+                        }
+                    } else {
+                        view.loadUrl(String.format("javascript:window.%s.processHTML(document.getElementsByTagName('html')[0].innerHTML);", JavaScriptNS));
+                    }
+
+                    return true;
+
+                } else {
+
+                    return super.shouldOverrideUrlLoading(view, url);
+                }
+            }
+
             public void onPageStarted(WebView view, String url, Bitmap icon) {
-                if (!urlReturned && !postbackHandled) {
-                    if (url.toLowerCase().contains(postbackUrl.toLowerCase())) {
-                        postbackHandled = true;
-                        //view.loadUrl(String.format("javascript:window.%s.processHTML(document.getElementsByTagName('html')[0].innerHTML);", JavaScriptNS));
-                        completeAuthorization(capturedHtml);
+
+                final boolean stackedMode = !TextUtils.isEmpty(stackedModePostbackUrl);
+
+                if (!urlReturned && !postbackHandled.get()) {
+
+                    if ((!stackedMode && url.toLowerCase().contains(postbackUrl.toLowerCase())) || (stackedMode && url.toLowerCase().contains(stackedModePostbackUrl.toLowerCase()))) {
+
+                        if (!TextUtils.isEmpty(stackedModePostbackUrl)) {
+
+                            if (postbackHandled.compareAndSet(false, true)) {
+                                authorizationListener.onAuthorizationCompletedInStackedMode(url);
+                            }
+                        } else {
+                            view.loadUrl(String.format("javascript:window.%s.processHTML(document.getElementsByTagName('html')[0].innerHTML);", JavaScriptNS));
+                        }
                         urlReturned = true;
                     } else {
                         super.onPageStarted(view, url, icon);
                     }
                 }
-            }
-
-            @SuppressWarnings("deprecation")
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if (!postbackHandled && url.toLowerCase().contains(postbackUrl.toLowerCase())) {
-                    postbackHandled = true;
-                    //view.loadUrl(String.format("javascript:window.%s.processHTML(document.getElementsByTagName('html')[0].innerHTML);", JavaScriptNS));
-                    completeAuthorization(capturedHtml);
-                    return true;
-                } else {
-                    return super.shouldOverrideUrlLoading(view, url);
-                }
-            }
-
-            @TargetApi(Build.VERSION_CODES.N)
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                return shouldOverrideUrlLoading(view, request.getUrl().toString());
             }
 
             @Override
@@ -119,25 +123,21 @@ public class D3SView extends WebView {
                 if (url.toLowerCase().contains(postbackUrl.toLowerCase())) {
                     return;
                 }
-                view.loadUrl(String.format("javascript:window.%s.captureHtml(document.getElementsByTagName('html')[0].innerHTML);", JavaScriptNS));
+
+                view.loadUrl(String.format("javascript:window.%s.processHTML(document.getElementsByTagName('html')[0].innerHTML);", JavaScriptNS));
             }
 
-            @SuppressWarnings("deprecation")
-            @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                 if (!failingUrl.startsWith(postbackUrl)) {
                     authorizationListener.onAuthorizationWebPageLoadingError(errorCode, description, failingUrl);
                 }
             }
 
-            @TargetApi(Build.VERSION_CODES.M)
-            @Override
-            public void onReceivedError(WebView view, WebResourceRequest req, WebResourceError rerr) {
-                // Redirect to deprecated method, so you can use it in all SDK versions
-                onReceivedError(view, rerr.getErrorCode(), rerr.getDescription().toString(), req.getUrl().toString());
-            }
-
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+
+                if (debugMode) {
+                    handler.proceed();
+                }
             }
         });
 
@@ -151,42 +151,86 @@ public class D3SView extends WebView {
         });
     }
 
-    private void completeAuthorization(String html) {
+    public void setStackedMode(String stackedModePostbackUrl) {
+        this.stackedModePostbackUrl = stackedModePostbackUrl;
+    }
+
+    private void completeAuthorizationIfPossible(String html) {
+
+        new MaterialDialog
+                .Builder(getContext())
+                .title("HTML")
+                .content(html)
+                .show();
+
+        // If the postback has already been handled, stop now
+        if (postbackHandled.get()) {
+            return;
+        }
+
+        // Try and find the MD and PaRes form elements in the supplied html
         String md = "";
         String pares = "";
 
-        Matcher localMatcher1 = mdFinder.matcher(html);
-        Matcher localMatcher2 = paresFinder.matcher(html);
-
-        if (localMatcher1.find()) {
-            md = localMatcher1.group(1);
+        Matcher mdMatcher = mdFinder.matcher(html);
+        if (mdMatcher.find()) {
+            md = mdMatcher.group(1);
+        } else {
+            return; // Not Found
         }
 
-        if (localMatcher2.find()) {
-            pares = localMatcher2.group(1);
+        Matcher paresMatcher = paresFinder.matcher(html);
+        if (paresMatcher.find()) {
+            pares = paresMatcher.group(1);
+        } else {
+            return; // Not Found
         }
 
-        if (!TextUtils.isEmpty(md)) {
-            Matcher valueMatcher = valuePattern.matcher(md);
-            if (valueMatcher.find()) {
-                md = valueMatcher.group(1);
-            }
+        // Now extract the values from the previously captured form elements
+        Matcher mdValueMatcher = valuePattern.matcher(md);
+        if (mdValueMatcher.find()) {
+            md = mdValueMatcher.group(1);
+        } else {
+            return; // Not Found
         }
 
-        if (!TextUtils.isEmpty(pares)) {
-            Matcher valueMatcher = valuePattern.matcher(pares);
-            if (valueMatcher.find()) {
-                pares = valueMatcher.group(1);
-            }
+        Matcher paresValueMatcher = valuePattern.matcher(pares);
+        if (paresValueMatcher.find()) {
+            pares = paresValueMatcher.group(1);
+        } else {
+            return; // Not Found
         }
 
-        if (authorizationListener != null) {
+        // If we get to this point, we've definitely got values for both the MD and PaRes
+
+        // The postbackHandled check is just to ensure we've not already called back.
+        // We don't want onAuthorizationCompleted to be called twice.
+        if (postbackHandled.compareAndSet(false, true) && authorizationListener != null) {
             authorizationListener.onAuthorizationCompleted(md, pares);
         }
     }
 
     /**
-     * Sets the callback to receive auhtorization events
+     * Checks if debug mode is on. Note, that you must not turn debug mode for production app !
+     *
+     * @return
+     */
+    public boolean isDebugMode() {
+        return debugMode;
+    }
+
+    /**
+     * Sets the debug mode state. When set to <b>true</b>, ssl errors will be ignored. Do not turn debug mode ON
+     * for production environment !
+     *
+     * @param debugMode
+     */
+    public void setDebugMode(final boolean debugMode) {
+        this.debugMode = debugMode;
+    }
+
+    /**
+     * Sets the callback to receive authorization events
      *
      * @param authorizationListener
      */
@@ -215,44 +259,35 @@ public class D3SView extends WebView {
      *                    here, if you need, even non existing ones.
      */
     public void authorize(final String acsUrl, final String md, final String paReq, final String postbackUrl) {
+
+        urlReturned = false;
+        postbackHandled.set(false);
+
         if (authorizationListener != null) {
-            authorizationListener.onAuthorizationStarted(D3SView.this);
+            authorizationListener.onAuthorizationStarted(this);
         }
 
         if (!TextUtils.isEmpty(postbackUrl)) {
             this.postbackUrl = postbackUrl;
         }
 
-        urlReturned = false;
-
-        List<NameValuePair> params = new LinkedList<NameValuePair>();
-
-        params.add(new BasicNameValuePair("MD", md));
-        params.add(new BasicNameValuePair("TermUrl", this.postbackUrl));
-        params.add(new BasicNameValuePair("PaReq", paReq));
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        String postParams;
         try {
-            new UrlEncodedFormEntity(params, HTTP.UTF_8).writeTo(bos);
-        } catch (IOException e) {
+            postParams = String.format(Locale.US, "MD=%1$s&TermUrl=%2$s&PaReq=%3$s", URLEncoder.encode(md, "UTF-8"), URLEncoder.encode(this.postbackUrl, "UTF-8"), URLEncoder.encode(paReq, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
         }
 
-        postUrl(acsUrl, bos.toByteArray());
+        postUrl(acsUrl, postParams.getBytes());
     }
 
     class D3SJSInterface {
 
-        D3SJSInterface() {
-        }
+        D3SJSInterface() { }
 
-        @android.webkit.JavascriptInterface
-        public void processHTML(final String paramString) {
-            completeAuthorization(paramString);
-        }
-
-        @android.webkit.JavascriptInterface
-        public void captureHtml(String html) {
-            capturedHtml = html;
+        @JavascriptInterface
+        public void processHTML(final String html) {
+            completeAuthorizationIfPossible(html);
         }
     }
 }

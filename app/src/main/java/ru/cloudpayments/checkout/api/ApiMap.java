@@ -7,8 +7,6 @@ import java.util.Map;
 
 public final class ApiMap extends HashMap<String, Object> {
 
-    private static final String TOKEN = "token";
-
     private ApiMap() { }
 
     public static Builder builder() {
@@ -43,24 +41,8 @@ public final class ApiMap extends HashMap<String, Object> {
 
         private Builder() { }
 
-        public Builder withSession() {
-            /*User user = RepositoryProvider.provideUserRepository().getCurrentUser();
-            if (user != null) {
-                String token = user.getToken();
-                if (token != null) {
-                    apiMap.put(TOKEN, token);
-                }
-            }*/
-
-            return this;
-        }
-
         public ApiMap build() {
             return apiMap;
-        }
-
-        public String buildIntoQuery() {
-            return urlEncodeUTF8(apiMap);
         }
     }
 }

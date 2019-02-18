@@ -4,6 +4,7 @@ import android.util.Base64;
 
 import java.io.UnsupportedEncodingException;
 
+import ru.cloudpayments.checkout.api.models.Post3dsRequest;
 import ru.cloudpayments.checkout.api.response.ApiResponse;
 import ru.cloudpayments.checkout.api.models.Transaction;
 import ru.cloudpayments.checkout.support.Constants;
@@ -61,15 +62,12 @@ public class Api {
 
     public static Observable<Transaction> post3ds(String transactionId, String paRes) {
 
-        ApiMap args = ApiMap
-                .builder()
-                .build();
-
-        args.put("TransactionId", transactionId);
-        args.put("PaRes", paRes);
+        Post3dsRequest post3dsRequest = new Post3dsRequest();
+        post3dsRequest.setTransactionId(transactionId);
+        post3dsRequest.setPaRes(paRes);
 
         return ApiFactory.getCPApi()
-                .post3ds(CONTENT_TYPE, getAuthToken(), args)
+                .post3ds(CONTENT_TYPE, getAuthToken(), post3dsRequest)
                 .flatMap(ApiResponse::handleError)
                 .map(ApiResponse::getData);
     }

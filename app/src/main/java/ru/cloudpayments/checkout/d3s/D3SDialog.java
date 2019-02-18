@@ -67,6 +67,10 @@ public class D3SDialog extends Base3DSDialog implements D3SViewAuthorizationList
             public void run() {
                 Log.e("ERORR", "onAuthorizationCompleted");
                 dismiss();
+
+                Log.e("MD", md);
+                Log.e("PaRes", paRes);
+
                 if (authorizationListener != null) {
                     authorizationListener.onAuthorizationCompleted(md, paRes);
                 }
@@ -97,6 +101,22 @@ public class D3SDialog extends Base3DSDialog implements D3SViewAuthorizationList
                 dismiss();
                 if (authorizationListener != null) {
                     authorizationListener.onAuthorizationFailed(errorCode, description, failingUrl);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onAuthorizationCompletedInStackedMode(final String finalizationUrl)
+    {
+        handler.post(new Runnable()
+        {
+            public void run()
+            {
+                dismiss();
+                if (authorizationListener != null)
+                {
+                    //authorizationListener.onAuthorizationCompletedInStackedMode(finalizationUrl);
                 }
             }
         });

@@ -1,12 +1,13 @@
 package ru.cloudpayments.checkout.api.interfaces;
 
-
+import retrofit2.http.Body;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.QueryMap;
 import ru.cloudpayments.checkout.api.ApiMap;
-import ru.cloudpayments.checkout.api.response.ApiResponse;
+import ru.cloudpayments.checkout.api.models.Post3dsRequest;
 import ru.cloudpayments.checkout.api.models.Transaction;
+import ru.cloudpayments.checkout.api.response.ApiResponse;
 import rx.Observable;
 
 public interface CPApi {
@@ -18,5 +19,5 @@ public interface CPApi {
     Observable<ApiResponse<Transaction>> auth(@Header("Content-Type") String contentType, @Header("Authorization") String authkey, @QueryMap ApiMap args);
 
     @POST("payments/cards/post3ds")
-    Observable<ApiResponse<Transaction>> post3ds(@Header("Content-Type") String contentType, @Header("Authorization") String authkey, @QueryMap ApiMap args);
+    Observable<ApiResponse<Transaction>> post3ds(@Header("Content-Type") String contentType, @Header("Authorization") String authkey, @Body Post3dsRequest post3dsRequest);
 }

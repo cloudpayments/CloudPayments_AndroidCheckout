@@ -17,7 +17,6 @@ import ru.cloudpayments.checkout.api.interfaces.CPApi;
 import ru.cloudpayments.checkout.api.serializers.GsonDateDeSerializer;
 
 public class ApiFactory {
-    //private static final String HOST = "https://api-test.cloudpayments.ru/"; // Test host
     private static final String HOST = "https://api.cloudpayments.ru/";
     private static final String API_URL = "";
 
