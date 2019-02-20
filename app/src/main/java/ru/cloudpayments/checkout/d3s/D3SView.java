@@ -1,13 +1,16 @@
 package ru.cloudpayments.checkout.d3s;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.webkit.JavascriptInterface;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -69,7 +72,36 @@ public class D3SView extends WebView {
 
         setWebViewClient(new WebViewClient() {
 
+            @Override
             public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
+
+                final boolean stackedMode = !TextUtils.isEmpty(stackedModePostbackUrl);
+
+                if (!postbackHandled.get() && (!stackedMode && url.toLowerCase().contains(postbackUrl.toLowerCase()) || (stackedMode
+                        && url.toLowerCase().contains(stackedModePostbackUrl.toLowerCase())))) {
+
+                    if (!TextUtils.isEmpty(stackedModePostbackUrl)) {
+
+                        if (postbackHandled.compareAndSet(false, true)) {
+                            authorizationListener.onAuthorizationCompletedInStackedMode(url);
+                        }
+                    } else {
+                        view.loadUrl(String.format("javascript:window.%s.processHTML(document.getElementsByTagName('html')[0].innerHTML);", JavaScriptNS));
+                    }
+
+                    return true;
+
+                } else {
+
+                    return super.shouldOverrideUrlLoading(view, url);
+                }
+            }
+
+            @TargetApi(Build.VERSION_CODES.N)
+            @Override
+            public boolean shouldOverrideUrlLoading(final WebView view, final WebResourceRequest request) {
+
+                String url = request.getUrl().toString();
 
                 final boolean stackedMode = !TextUtils.isEmpty(stackedModePostbackUrl);
 
